@@ -20,6 +20,8 @@ class MyApp extends StatelessWidget {
 }
 
 class InputForm extends StatefulWidget {
+  InputForm(this.document);
+  final DocumentSnapshot document;
   @override
   _MyInputFormState createState() => _MyInputFormState();
 }
@@ -32,6 +34,7 @@ class _FormData {
 }
 
 class _DataField {
+  static final String collection = 'kasikari-memo';
   static final String borrowOrLend = 'borrowOrLend';
   static final String user = 'user';
   static final String stuff = 'stuff';
@@ -59,11 +62,17 @@ class _MyInputFormState extends State<InputForm> {
   @override
   Widget build(BuildContext context) {
     DocumentReference _mainReference =
-        Firestore.instance.collection('kasikari-memo').document();
-    if(widget.document != null) {
-      if(_data.user == null && _data.stuff == null) {
-        _data.borrowOrLend = widget.document[_DataField.borrowOrLend]
+        Firestore.instance.collection(_DataField.collection).document();
+    if (widget.document != null) {
+      if (_data.user == null && _data.stuff == null) {
+        _data.borrowOrLend = widget.document[_DataField.borrowOrLend];
+        _data.user = widget.document[_DataField.user];
+        _data.stuff = widget.document[_DataField.stuff];
+        _data.date = widget.document[_DataField.date].toDate();
       }
+      _mainReference = Firestore.instance
+          .collection(_DataField.collection)
+          .document(widget.document.documentID);
     }
     return Scaffold(
         appBar: AppBar(title: const Text('貸し借り入力'), actions: <Widget>[
@@ -184,7 +193,8 @@ class _MyList extends State<List> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance.collection('kasikari-memo').snapshots(),
+          stream:
+              Firestore.instance.collection(_DataField.collection).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (!snapshot.hasData) return const Text('Loading...');
@@ -205,7 +215,7 @@ class _MyList extends State<List> {
               context,
               MaterialPageRoute(
                   settings: const RouteSettings(name: "/new"),
-                  builder: (BuildContext context) => InputForm()),
+                  builder: (BuildContext context) => InputForm(null)),
             );
           }),
     );
@@ -223,7 +233,8 @@ class _MyList extends State<List> {
                 "]" +
                 document[_DataField.stuff]),
             subtitle: Text('期限: ' +
-                DateFormat.yMMMd('ja').format(document[_DataField.date].toDate()) +
+                DateFormat.yMMMd('ja')
+                    .format(document[_DataField.date].toDate()) +
                 "\n相手: " +
                 document[_DataField.user]),
           ),
@@ -233,6 +244,12 @@ class _MyList extends State<List> {
                 child: const Text("編集"),
                 onPressed: () {
                   print("編集ボタンを押しました．");
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          settings: const RouteSettings(name: '/edit'),
+                          builder: (BuildContext context) =>
+                              InputForm(document)));
                 },
               )
             ],
