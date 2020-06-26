@@ -29,7 +29,10 @@ dependencies:
   cupertino_icons: ^0.1.3
 
   # for firestore
-  cloud_firestore: ^0.7.3
+  cloud_firestore: ^0.13.7
+
+  # date formatter
+  intl: ^0.16.1
 
 dev_dependencies:
   flutter_test:
