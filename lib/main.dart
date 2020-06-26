@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 void main() {
   initializeDateFormatting('ja');
@@ -33,6 +34,14 @@ class _FormData {
 class _MyInputFormState extends State<InputForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _FormData _data = _FormData();
+
+  Future<DateTime> _selectTime(BuildContext context) {
+    return showDatePicker(
+        context: context,
+        initialDate: _data.date,
+        firstDate: DateTime(_data.date.year - 2),
+        lastDate: DateTime(_data.date.year + 2));
+  }
 
   void _setBorrowOrLend(String value) {
     setState(() {
@@ -104,6 +113,13 @@ class _MyInputFormState extends State<InputForm> {
                 child: const Text("締め切り日変更"),
                 onPressed: () {
                   print("締切日変更をタッチしました．");
+                  _selectTime(context).then((time) {
+                    if (time != null && time != _data.date) {
+                      setState(() {
+                        _data.date = time;
+                      });
+                    }
+                  });
                 },
               )
             ],
