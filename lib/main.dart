@@ -31,6 +31,13 @@ class _FormData {
   DateTime date = DateTime.now();
 }
 
+class _DataField {
+  static final String borrowOrLend = 'borrowOrLend';
+  static final String user = 'user';
+  static final String stuff = 'stuff';
+  static final String date = 'date';
+}
+
 class _MyInputFormState extends State<InputForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _FormData _data = _FormData();
@@ -53,6 +60,11 @@ class _MyInputFormState extends State<InputForm> {
   Widget build(BuildContext context) {
     DocumentReference _mainReference =
         Firestore.instance.collection('kasikari-memo').document();
+    if(widget.document != null) {
+      if(_data.user == null && _data.stuff == null) {
+        _data.borrowOrLend = widget.document[_DataField.borrowOrLend]
+      }
+    }
     return Scaffold(
         appBar: AppBar(title: const Text('貸し借り入力'), actions: <Widget>[
           IconButton(
@@ -62,10 +74,10 @@ class _MyInputFormState extends State<InputForm> {
               if (_formKey.currentState.validate()) {
                 _formKey.currentState.save();
                 _mainReference.setData({
-                  'borrowOrLend': _data.borrowOrLend,
-                  'user': _data.user,
-                  'stuff': _data.stuff,
-                  'date': _data.date
+                  _DataField.borrowOrLend: _data.borrowOrLend,
+                  _DataField.user: _data.user,
+                  _DataField.stuff: _data.stuff,
+                  _DataField.date: _data.date
                 });
                 Navigator.pop(context);
               }
@@ -207,13 +219,13 @@ class _MyList extends State<List> {
           ListTile(
             leading: const Icon(Icons.android),
             title: Text("[" +
-                (document['borrowOrLend'] == "lend" ? "貸" : "借") +
+                (document[_DataField.borrowOrLend] == "lend" ? "貸" : "借") +
                 "]" +
-                document['stuff']),
+                document[_DataField.stuff]),
             subtitle: Text('期限: ' +
-                DateFormat.yMMMd('ja').format(document['date'].toDate()) +
+                DateFormat.yMMMd('ja').format(document[_DataField.date].toDate()) +
                 "\n相手: " +
-                document['user']),
+                document[_DataField.user]),
           ),
           ButtonBar(
             children: <Widget>[
