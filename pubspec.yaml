@@ -30,6 +30,7 @@ dependencies:
 
   # for firestore
   cloud_firestore: ^0.13.7
+  firebase_analytics: ^5.0.15
 
   # date formatter
   intl: ^0.16.1
