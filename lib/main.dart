@@ -51,12 +51,24 @@ class _MyInputFormState extends State<InputForm> {
 
   @override
   Widget build(BuildContext context) {
+    DocumentReference _mainReference =
+        Firestore.instance.collection('kasikari-memo').document();
     return Scaffold(
         appBar: AppBar(title: const Text('貸し借り入力'), actions: <Widget>[
           IconButton(
             icon: Icon(Icons.save),
             onPressed: () {
               print("保存ボタンを押しました．");
+              if (_formKey.currentState.validate()) {
+                _formKey.currentState.save();
+                _mainReference.setData({
+                  'borrowOrLend': _data.borrowOrLend,
+                  'user': _data.user,
+                  'stuff': _data.stuff,
+                  'date': _data.date
+                });
+                Navigator.pop(context);
+              }
             },
           ),
           IconButton(
@@ -96,6 +108,15 @@ class _MyInputFormState extends State<InputForm> {
                   hintText: '相手の名前',
                   labelText: 'Name',
                 ),
+                onSaved: (String value) {
+                  _data.user = value;
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return '名前は必須入力項目です．';
+                  }
+                },
+                initialValue: _data.user,
               ),
               TextFormField(
                 decoration: const InputDecoration(
@@ -103,6 +124,15 @@ class _MyInputFormState extends State<InputForm> {
                   hintText: '借りたもの，貸したもの',
                   labelText: 'loan',
                 ),
+                onSaved: (String value) {
+                  _data.stuff = value;
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return '借りたもの，貸したものは必須入力項目です．';
+                  }
+                },
+                initialValue: _data.stuff,
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
