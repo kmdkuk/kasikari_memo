@@ -37,25 +37,22 @@ class _MyInputFormState extends State<InputForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('貸し借り入力'),
-        actions: <Widget>[
+        appBar: AppBar(title: const Text('貸し借り入力'), actions: <Widget>[
           IconButton(
             icon: Icon(Icons.save),
-            onPressed: (){
-              print("保存ボタンを押しました．")
+            onPressed: () {
+              print("保存ボタンを押しました．");
             },
           ),
           IconButton(
-            icon:Icon(Icons.delete),
+            icon: Icon(Icons.delete),
             onPressed: () {
               print("削除ボタンを押しました．");
             },
           )
-        ]
-      ),
-      body: SafeArea(
-        child: Form(
+        ]),
+        body: SafeArea(
+            child: Form(
           key: _formKey,
           child: ListView(
             padding: const EdgeInsets.all(20.0),
@@ -64,7 +61,7 @@ class _MyInputFormState extends State<InputForm> {
                 value: "borrow",
                 groupValue: _data.borrowOrLend,
                 title: Text("借りた"),
-                onChanged: (String value){
+                onChanged: (String value) {
                   print("借りたをタッチしました．");
                 },
               ),
@@ -72,7 +69,7 @@ class _MyInputFormState extends State<InputForm> {
                 value: "lend",
                 groupValue: _data.borrowOrLend,
                 title: Text("貸した"),
-                onChanged: (String value){
+                onChanged: (String value) {
                   print("貸したをタッチしました．");
                 },
               ),
@@ -92,19 +89,18 @@ class _MyInputFormState extends State<InputForm> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
-                child: Text("締め切り日:${DateFormat.yMMMd('ja').format(_data.date)}"),
+                child:
+                    Text("締め切り日:${DateFormat.yMMMd('ja').format(_data.date)}"),
               ),
               RaisedButton(
                 child: const Text("締め切り日変更"),
-                onPressed: (){
+                onPressed: () {
                   print("締切日変更をタッチしました．");
                 },
               )
             ],
           ),
-          )
-      )
-      );
+        )));
   }
 }
 
