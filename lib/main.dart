@@ -34,6 +34,12 @@ class _MyInputFormState extends State<InputForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _FormData _data = _FormData();
 
+  void _setBorrowOrLend(String value) {
+    setState(() {
+      _data.borrowOrLend = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +68,8 @@ class _MyInputFormState extends State<InputForm> {
                 groupValue: _data.borrowOrLend,
                 title: Text("借りた"),
                 onChanged: (String value) {
-                  print("借りたをタッチしました．");
+                  print("借りたをタッチしました．" + value);
+                  _setBorrowOrLend(value);
                 },
               ),
               RadioListTile(
@@ -70,7 +77,8 @@ class _MyInputFormState extends State<InputForm> {
                 groupValue: _data.borrowOrLend,
                 title: Text("貸した"),
                 onChanged: (String value) {
-                  print("貸したをタッチしました．");
+                  print("貸したをタッチしました．" + value);
+                  _setBorrowOrLend(value);
                 },
               ),
               TextFormField(
