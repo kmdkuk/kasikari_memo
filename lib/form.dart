@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:share/share.dart';
 
 import 'globals.dart' as globals;
 import 'data_field.dart';
@@ -88,6 +89,23 @@ class _MyInputFormState extends State<InputForm> {
                     _mainReference.delete();
                     Navigator.pop(context);
                   },
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () {
+              if (_formKey.currentState.validate()) {
+                _formKey.currentState.save();
+                Share.share("[" +
+                    (_data.borrowOrLend == "lend" ? "貸" : "借") +
+                    "]" +
+                    _data.stuff +
+                    "\n期限：" +
+                    globals.formatter.format(_data.date) +
+                    "\n相手：" +
+                    _data.user +
+                    "\n#かしかりメモ");
+              }
+            },
           )
         ]),
         body: SafeArea(
