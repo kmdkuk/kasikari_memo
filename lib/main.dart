@@ -63,6 +63,7 @@ class _MyInputFormState extends State<InputForm> {
   Widget build(BuildContext context) {
     DocumentReference _mainReference =
         Firestore.instance.collection(_DataField.collection).document();
+    bool isEdit = false;
     if (widget.document != null) {
       if (_data.user == null && _data.stuff == null) {
         _data.borrowOrLend = widget.document[_DataField.borrowOrLend];
@@ -73,6 +74,7 @@ class _MyInputFormState extends State<InputForm> {
       _mainReference = Firestore.instance
           .collection(_DataField.collection)
           .document(widget.document.documentID);
+      isEdit = true;
     }
     return Scaffold(
         appBar: AppBar(title: const Text('貸し借り入力'), actions: <Widget>[
@@ -94,9 +96,14 @@ class _MyInputFormState extends State<InputForm> {
           ),
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: () {
-              print("削除ボタンを押しました．");
-            },
+            onPressed: !isEdit
+                ? null
+                : () {
+                    print("削除ボタンを押しました．");
+                    // 削除処理
+                    _mainReference.delete();
+                    Navigator.pop(context);
+                  },
           )
         ]),
         body: SafeArea(
