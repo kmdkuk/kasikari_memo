@@ -103,7 +103,7 @@ class _MyInputFormState extends State<InputForm> {
                     globals.formatter.format(_data.date) +
                     "\n相手：" +
                     _data.user +
-                    "\n#かしかりメモ");
+                    "\n #かしかりメモ");
               }
             },
           )

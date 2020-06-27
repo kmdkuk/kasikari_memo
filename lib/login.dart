@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
 import 'globals.dart' as globals;
+import 'data_field.dart';
 
 void showBasicDialog(BuildContext context) {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -116,9 +119,18 @@ void _signIn(BuildContext context, String email, String password) async {
 
 void _createUser(BuildContext context, String email, String password) async {
   try {
-    await globals.auth.createUserWithEmailAndPassword(
-        email: email.trim(), password: password);
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+    globals.auth
+        .createUserWithEmailAndPassword(email: email.trim(), password: password)
+        .then((currentUser) => Firestore.instance
+                .collection(UserField.collection)
+                .document(currentUser.user.uid)
+                .setData({
+              UserField.userId: currentUser.user.uid,
+              UserField.displayName: email.trim(),
+              UserField.email: email.trim(),
+            }))
+        .then((result) =>
+            {Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false)});
   } catch (e) {
     Fluttertoast.showToast(msg: 'ユーザ登録に失敗しました．');
   }
