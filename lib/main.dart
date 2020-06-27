@@ -1,8 +1,14 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+FirebaseUser firebaseUser;
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 void main() {
   initializeDateFormatting('ja');
@@ -14,8 +20,160 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'かしかりメモ',
-      home: List(),
+      routes: <String, WidgetBuilder>{
+        '/': (_) => Splash(),
+        '/list': (_) => List(),
+      },
     );
+  }
+}
+
+class Splash extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    _getUser(context);
+    return Scaffold(
+      body: Center(
+        child: const Text("スプラッシュ画面"),
+      ),
+    );
+  }
+}
+
+void _getUser(BuildContext context) async {
+  try {
+    firebaseUser = await _auth.currentUser();
+    if (firebaseUser == null) {
+      await _auth.signInAnonymously();
+      firebaseUser = await _auth.currentUser();
+    }
+    Navigator.pushReplacementNamed(context, '/list');
+  } catch (e) {
+    Fluttertoast.showToast(msg: 'ログインに失敗しました．');
+  }
+}
+
+void showBasicDialog(BuildContext context) {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String email, password;
+
+  if (firebaseUser.isAnonymous) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("ログイン/登録ダイアログ"),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                decoration: const InputDecoration(
+                  icon: const Icon(Icons.mail),
+                  labelText: 'Email',
+                ),
+                onSaved: (String value) {
+                  email = value;
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Emailは必須入力項目です．';
+                  }
+                },
+              ),
+              TextFormField(
+                obscureText: true,
+                decoration: const InputDecoration(
+                  icon: const Icon(Icons.vpn_key),
+                  labelText: 'Password',
+                ),
+                onSaved: (String value) {
+                  password = value;
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Passwordは必須入力項目です．';
+                  }
+                  if (value.length < 6) {
+                    return 'Passwordは6桁以上です．';
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: const Text('キャンセル'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          FlatButton(
+            child: const Text('登録'),
+            onPressed: () {
+              if (_formKey.currentState.validate()) {
+                _formKey.currentState.save();
+                _createUser(context, email, password);
+              }
+            },
+          ),
+          FlatButton(
+            child: const Text('ログイン'),
+            onPressed: () {
+              if (_formKey.currentState.validate()) {
+                _formKey.currentState.save();
+                _signIn(context, email, password);
+              }
+            },
+          )
+        ],
+      ),
+    );
+  } else {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: const Text("確認ダイアログ"),
+              content: Text(firebaseUser.email + "でログインしています"),
+              actions: <Widget>[
+                FlatButton(
+                  child: const Text('キャンセル'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                FlatButton(
+                  child: const Text('ログアウト'),
+                  onPressed: () {
+                    _auth.signOut();
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, '/', (_) => false);
+                  },
+                )
+              ],
+            ));
+  }
+}
+
+void _signIn(BuildContext context, String email, String password) async {
+  try {
+    await _auth.signInWithEmailAndPassword(email: email, password: password);
+    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+  } catch (e) {
+    Fluttertoast.showToast(msg: 'ログインに失敗しました．');
+  }
+}
+
+void _createUser(BuildContext context, String email, String password) async {
+  try {
+    await _auth.createUserWithEmailAndPassword(
+        email: email.trim(), password: password);
+    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+  } catch (e) {
+    Fluttertoast.showToast(msg: 'ユーザ登録に失敗しました．');
+    print(e);
+    print(email);
+    print(password);
   }
 }
 
@@ -196,6 +354,15 @@ class _MyList extends State<List> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("リスト画面"),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: () {
+              print("ログインボタンが押されました");
+              showBasicDialog(context);
+            },
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

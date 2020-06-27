@@ -31,6 +31,8 @@ dependencies:
   # for firestore
   cloud_firestore: ^0.13.7
   firebase_analytics: ^5.0.15
+  firebase_auth: ^0.16.1
+  fluttertoast: ^4.0.0
 
   # date formatter
   intl: ^0.16.1
