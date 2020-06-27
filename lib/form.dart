@@ -38,8 +38,7 @@ class _MyInputFormState extends State<InputForm> {
 
   @override
   Widget build(BuildContext context) {
-    DocumentReference _mainReference =
-        Firestore.instance.collection(DataField.collection).document();
+    DocumentReference _mainReference;
     bool isEdit = false;
     if (widget.document != null) {
       if (_data.user == null && _data.stuff == null) {
@@ -50,8 +49,16 @@ class _MyInputFormState extends State<InputForm> {
       }
       _mainReference = Firestore.instance
           .collection(DataField.collection)
+          .document(globals.firebaseUser.uid)
+          .collection(DataField.transaction)
           .document(widget.document.documentID);
       isEdit = true;
+    } else {
+      _mainReference = Firestore.instance
+          .collection(DataField.collection)
+          .document(globals.firebaseUser.uid)
+          .collection(DataField.transaction)
+          .document();
     }
     return Scaffold(
         appBar: AppBar(title: const Text('貸し借り入力'), actions: <Widget>[
